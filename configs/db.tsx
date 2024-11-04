@@ -5,7 +5,11 @@ const ConnectToDB = async () => {
     if (mongoose.connections[0].readyState) {
       return true;
     } else {
-      await mongoose.connect(process.env.main_URL);
+      await mongoose.connect(process.env.main_URL , {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        serverSelectionTimeoutMS: 30000, // Increase to 30 seconds
+      });
     }
   } catch (err) {
   }
