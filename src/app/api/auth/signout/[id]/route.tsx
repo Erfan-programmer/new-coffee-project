@@ -4,10 +4,8 @@ import { isValidObjectId } from "mongoose";
 import { cookies } from "next/headers";
 
 export async function generateStaticParams() {
-  // Connect to the database
   await ConnectToDB();
   
-  // Fetch all user IDs from the database
   const users = await UserModel.find({}, '_id'); // Only fetching the '_id' field
   const paths = users.map((user) => ({
     params: { id: user._id.toString() },
@@ -20,22 +18,25 @@ export async function POST(req: any, { params }: any) {
   await ConnectToDB();
   try {
     const { id } = params;
-    if (!isValidObjectId(id)) {
-      return Response.json({ message: "id is not valid !!" }, { status: 409 });
+    
+    // Validate ObjectId
+    if (!id || !isValidObjectId(id)) {
+      return Response.json({ message: "ID is not valid or missing!" }, { status: 409 });
     }
+
+    // Find the user
     const user = await UserModel.findOne({ _id: id });
     if (!user) {
-      return Response.json(
-        { message: "user is not found !!" },
-        { status: 409 }
-      );
+      return Response.json({ message: "User not found!" }, { status: 404 });
     }
+
+    // Delete token cookie
     cookies().delete("token");
-    return Response.json(
-      { message: "user log out successfully" },
-      { status: 200 }
-    );
+
+    return Response.json({ message: "User logged out successfully" }, { status: 200 });
   } catch (err) {
-    return Response.json({ message: process.env.serverError }, { status: 500 });
+    console.error("Database operation failed:", err); // Log error details
+    return Response.json({ message: process.env.serverError || "An error occurred." }, { status: 500 });
   }
 }
+
