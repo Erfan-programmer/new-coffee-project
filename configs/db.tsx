@@ -6,9 +6,9 @@ const ConnectToDB = async () => {
       return true;
     } else {
       await mongoose.connect(process.env.main_URL , {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        serverSelectionTimeoutMS: 30000, // Increase to 30 seconds
+        serverSelectionTimeoutMS: 30000, // 30 ثانیه
+        connectTimeoutMS: 30000, // 30 ثانیه
+        socketTimeoutMS: 45000,  // 45 ثانیه
       });
     }
   } catch (err) {
